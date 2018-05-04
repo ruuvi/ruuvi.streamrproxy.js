@@ -74,18 +74,16 @@ app.use((req, res, next) => {
  * Handle data from RuuviStation app. 
  */
  app.post('/ruuvistation', jsonParser, function (req, res) {
-  console.log(req.body);
-
   let measurements = req.body;
 
     // IF ruuvi station data
     if(measurements.tags && Array.isArray(measurements.tags)){
      measurements.tags.forEach(function(sample){
-      let data = ruuviParser.parse(sample.rawDataBlob);
-      console.log(byteToHexString(sample.rawDataBlob))
+      let data = ruuviParser.parse(sample.rawDataBlob.blob.slice(7));
       data.rssi = sample.rssi;
       data.timestamp = sample.time;
-
+      console.log(data);
+      
       // Produce the event to the Stream
       streamr_client.produceToStream(config.STREAM_ID, data)
         .then(() => function(){})
