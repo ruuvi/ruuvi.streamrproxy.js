@@ -82,6 +82,7 @@ app.use((req, res, next) => {
     if(measurements.tags && Array.isArray(measurements.tags)){
      measurements.tags.forEach(function(sample){
       let data = ruuviParser.parse(sample.rawDataBlob);
+      console.log(byteToHexString(sample.rawDataBlob))
       data.rssi = sample.rssi;
       data.timestamp = sample.time;
 
