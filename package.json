@@ -1,0 +1,35 @@
+{
+  "name": "ruuvi.streamrproxy.js",
+  "version": "0.0.1",
+  "description": "Relay Ruuvi data to Streamr",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruuvi/ruuvi.streamrproxy.js.git"
+  },
+  "keywords": [
+    "Ruuvi",
+    "Streamr"
+  ],
+  "author": "Otso Jousimaa",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/ruuvi/ruuvi.streamrproxy.js/issues"
+  },
+  "homepage": "https://github.com/ruuvi/ruuvi.streamrproxy.js#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "dirty-json": "^0.6.0",
+    "express": "^4.16.3",
+    "express-async-await": "^1.1.0",
+    "http": "0.0.0",
+    "install": "^0.11.0",
+    "npm": "^6.0.0",
+    "os": "^0.1.1",
+    "ruuvi.endpoints.js": "^1.1.3",
+    "streamr-client": "^0.10.2"
+  }
+}

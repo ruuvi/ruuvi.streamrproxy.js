@@ -1,0 +1,5 @@
+module.exports = {
+  STREAM_ID: 'MY-STREAM-ID',
+  API_KEY: 'MY-API-KEY',
+  data_port: 3001
+}
