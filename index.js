@@ -62,7 +62,7 @@ app.use((req, res, next) => {
 
   res.on('finish', () => {
     const duration = Date.now() - start;
-    console.log(`Request to ${req.path} took ${duration}ms`);
+    // console.log(`Request to ${req.path} took ${duration}ms`);
   })
   return next();
 })
@@ -100,7 +100,7 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
       //If not ruuvi broadcast data, continue to next sample
       if(!hex_data.includes("FF99040")) { return; }
       let binary = hexStringToByte(hex_data.slice(hex_data.indexOf("FF99040") + 6));
-      console.log(byteToHexString(binary));
+      // console.log(byteToHexString(binary));
       // Skip non-broadcast types
       if (binary[0] < 2 || binary[0] > 5 || binary.size < 10) {
         return;
