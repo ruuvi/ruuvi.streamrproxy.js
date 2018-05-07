@@ -99,7 +99,7 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
       let binary = sample.rawDataBlob.blob.slice(7);
       // console.log(byteToHexString(sample.rawDataBlob.blob));
       // Skip non-broadcast types
-      if (binary[0] < 2 || binary[0] > 5) {
+      if (binary[0] < 2 || binary[0] > 5 || binary.size < 10) {
         return;
       }
       let data = ruuviParser.parse(binary);
@@ -126,13 +126,18 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
 // bleName: '',
 // rssi: -51,
 // rawData: '02010415FF9904034A180BC907FFE8FFCC04200B8300000000' }
-
+/*
+ * Handle data from Ruuvi GW
+ */
 app.post('/gateway', gwjsonParser, async function(req, res) {
   let str = req.body;
   if (!str) {
     res.send("invalid");
     return;
   }
+  let gateway_id = "Ruuvi GW"
+  if(req.query.gateway_id) { gateway_id = req.query.gateway_id; }
+  console.log(gateway_id);
   let measurements = await dJSON.parse(str);
 
   // IF GW data
@@ -151,9 +156,9 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
         sample.type === "Unknown" &&
         sample.rawData &&
         sample.rawData.includes("FF99040")) {
-        console.log(sample);
+        // console.log(sample);
         let binary = hexStringToByte(sample.rawData.slice(sample.rawData.indexOf("FF99040") + 6));
-        console.log(byteToHexString(binary));
+        // console.log(byteToHexString(binary));
         // Skip non-broadcast types
         if (binary[0] < 2 || binary[0] > 5) {
           return;
@@ -163,7 +168,7 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
         data.rssi = sample.rssi;
         // format D6A911ADA763 into D6:A9:11:AD:A7:63
         data.mac = sample.mac.match(/.{2}/g).join(":");
-        console.log(data);
+        // console.log(data);
 
         // Produce the event to the Stream
         streamr_client.produceToStream(config.STREAM_ID, data)
@@ -177,7 +182,9 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
   res.send("ok");
 });
 
-
+/*
+ * Handle data from ruuvi.scanner.js
+ */
 app.post('/scanner', jsonParser, async function(req, res) {
   let str = req.body;
   if (!str) {
