@@ -95,9 +95,9 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
   // IF ruuvi station data
   if (measurements.tags && Array.isArray(measurements.tags)) {
     measurements.tags.forEach(function(sample) {
-      console.log(byteToHexString(sample.rawDataBlob.blob));
+      // console.log(byteToHexString(sample.rawDataBlob.blob));
       let binary = sample.rawDataBlob.blob.slice(7);
-      console.log(byteToHexString(sample.rawDataBlob.blob));
+      // console.log(byteToHexString(sample.rawDataBlob.blob));
       // Skip non-broadcast types
       if (binary[0] < 2 || binary[0] > 5) {
         return;
@@ -107,7 +107,7 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
       data.timestamp = new Date(sample.updateAt);
       data.mac = sample.id;
       data.gateway_id = measurements.deviceId;
-      console.log(data);
+      // console.log(data);
 
       // Produce the event to the Stream
       streamr_client.produceToStream(config.STREAM_ID, data)
@@ -153,6 +153,7 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
         sample.rawData.includes("FF99040")) {
         console.log(sample);
         let binary = hexStringToByte(sample.rawData.indexOf("FF99040") + 6);
+        console.log(byteToHexString(binary));
         let data = ruuviParser.parse(binary);
         data.timestamp = new Date(sample.timestamp);
         data.rssi = sample.rssi;
@@ -196,7 +197,7 @@ app.post('/scanner', jsonParser, async function(req, res) {
         data.timestamp = sample.timestamp;
         data.rssi = sample.rssi;
         data.gateway_id = sample.gateway_id
-        console.log(data);
+        // console.log(data);
         // Produce the event to the Stream
         streamr_client.produceToStream(config.STREAM_ID, data)
           .then(() => function() {})
