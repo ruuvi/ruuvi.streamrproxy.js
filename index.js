@@ -26,6 +26,7 @@ const streamr_client = new StreamrClient({
   apiKey: API_KEY
 });
 
+// https://gist.github.com/tauzen/3d18825ae41ff3fc8981
 const byteToHexString = function (uint8arr) {
   if (!uint8arr) {
     return '';
@@ -39,6 +40,19 @@ const byteToHexString = function (uint8arr) {
   }
   
   return hexStr.toUpperCase();
+}
+
+const hexStringToByte = function(str) {
+  if (!str) {
+    return new Uint8Array();
+  }
+  
+  var a = [];
+  for (var i = 0, len = str.length; i < len; i+=2) {
+    a.push(parseInt(str.substr(i,2),16));
+  }
+  
+  return new Uint8Array(a);
 }
 
 app.use((req, res, next) => {
@@ -79,9 +93,15 @@ app.use((req, res, next) => {
     // IF ruuvi station data
     if(measurements.tags && Array.isArray(measurements.tags)){
      measurements.tags.forEach(function(sample){
-      let data = ruuviParser.parse(sample.rawDataBlob.blob.slice(7));
+      console.log(byteToHexString(sample.rawDataBlob.blob));
+      let binary = sample.rawDataBlob.blob.slice(7);
+      // Skip non-broadcast types
+      if(binary[0] < 2 || binary[0] > 5) { return; }
+      let data = ruuviParser.parse(binary);
       data.rssi = sample.rssi;
       data.timestamp = sample.time;
+      data.mac = sample.id;
+      data.gateway = measurements.deviceId;
       console.log(data);
       
       // Produce the event to the Stream
@@ -93,45 +113,41 @@ app.use((req, res, next) => {
    res.send("ok");;
  });
 
-// app.post('/gateway', gwjsonParser, async function (req, res) {
-//   let str = req.body;
-//   if(!str) 
-//   { 
-//     res.send("invalid");
-//     return;
-//   }
-//   let measurements = await dJSON.parse(str);
-//   let ms = Date.now(); //nanoseconds
-//   console.log(ms);
+app.post('/gateway', gwjsonParser, async function (req, res) {
+  let str = req.body;
+  if(!str) 
+  { 
+    res.send("invalid");
+    return;
+  }
+  let measurements = await dJSON.parse(str);
 
-//     // IF GW data
-//     if(Array.isArray(measurements)){
-//       let influx_samples = [];
-//       measurements.forEach(function(sample){
-//         // print debug data to console TODO log file
-//         if(sample.name === "gateway"){
-//           console.log(sample.action);
-//           //For each is a function call, "continue"
-//           return;
-//         }
+    // IF GW data
+    if(Array.isArray(measurements)){
+      let influx_samples = [];
+      measurements.forEach(function(sample){
+        // print debug data to console TODO log file
+        if(sample.name === "gateway"){
+          console.log(sample.action);
+          //For each is a function call, "continue"
+          return;
+        }
 
-//         // Handle data points from Ruuvi tag broadcast formats
-//         // TODO: Unify with ruuvi scanner data handling
-//         if(sample.type &&
-//          sample.type === "Unknown" &&
-//          sample.rawData &&
-//          sample.rawData.includes("FF99040"))
-//         {
-//         }
+        // Handle data points from RuuviTag broadcast formats
+        if(sample.type &&
+         sample.type === "Unknown" &&
+         sample.rawData &&
+         sample.rawData.includes("FF99040"))
+        {
+          console.log(sample);
+          let binary = hexStringToByte(sample.rawData.indexOf("FF99040") + 6);
+          let data = ruuviParser.parse(binary);
+        }
+      });
+    }else console.log("not an array");
 
-//       });
-//       console.log(influx_samples);
-//       influx.writePoints(influx_samples).catch(err => {
-//         console.error(`Error saving data to InfluxDB! ${err.stack}`)});
-//     }else console.log("not an array");
-
-//     res.send("ok");
-//   });
+    res.send("ok");
+  });
 
 
 app.post('/scanner', jsonParser, async function (req, res) {
