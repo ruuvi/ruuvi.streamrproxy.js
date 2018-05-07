@@ -95,9 +95,9 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
   // IF ruuvi station data
   if (measurements.tags && Array.isArray(measurements.tags)) {
     measurements.tags.forEach(function(sample) {
-      // console.log(byteToHexString(sample.rawDataBlob.blob));
+      console.log(byteToHexString(sample.rawDataBlob.blob));
       let binary = sample.rawDataBlob.blob.slice(7);
-      // console.log(byteToHexString(sample.rawDataBlob.blob));
+      // console.log(byteToHexString(binary.rawDataBlob.blob));
       // Skip non-broadcast types
       if (binary[0] < 2 || binary[0] > 5 || binary.size < 10) {
         return;
@@ -137,7 +137,7 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
   }
   let gateway_id = "Ruuvi GW"
   if(req.query.gateway_id) { gateway_id = req.query.gateway_id; }
-  console.log(gateway_id);
+  // console.log(gateway_id);
   let measurements = await dJSON.parse(str);
 
   // IF GW data
@@ -168,6 +168,7 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
         data.rssi = sample.rssi;
         // format D6A911ADA763 into D6:A9:11:AD:A7:63
         data.mac = sample.mac.match(/.{2}/g).join(":");
+        data.gateway_id = gateway_id;
         // console.log(data);
 
         // Produce the event to the Stream
