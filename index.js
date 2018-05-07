@@ -95,9 +95,10 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
   // IF ruuvi station data
   if (measurements.tags && Array.isArray(measurements.tags)) {
     measurements.tags.forEach(function(sample) {
-      console.log(byteToHexString(sample.rawDataBlob.blob));
-      let binary = sample.rawDataBlob.blob.slice(7);
-      // console.log(byteToHexString(binary.rawDataBlob.blob));
+      console.log();
+      let hex_data = byteToHexString(sample.rawDataBlob.blob);
+      let binary = hexStringToByte(sample.rawData.slice(sample.rawData.indexOf("FF99040") + 6));
+      console.log(byteToHexString(binary));
       // Skip non-broadcast types
       if (binary[0] < 2 || binary[0] > 5 || binary.size < 10) {
         return;
