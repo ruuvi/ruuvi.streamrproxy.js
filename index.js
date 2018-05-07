@@ -225,6 +225,13 @@ app.post('/scanner', jsonParser, async function(req, res) {
   res.send("ok");
 });
 
+/*
+ * Heartbeat scans
+ */
+app.get('/monitor', jsonParser, async function(req, res) {
+  res.send("I'm up :)");
+});
+
 http.createServer(app).listen(data_port, function() {
   console.log('Listening on port ' + data_port);
 });
