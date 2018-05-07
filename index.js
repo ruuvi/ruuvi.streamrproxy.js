@@ -120,7 +120,7 @@ app.post('/ruuvistation', jsonParser, function(req, res) {
   res.send("ok");;
 });
 
-//         { timestamp: '2018-05-07T12:14:32Z',
+// { timestamp: '2018-05-07T12:14:32Z',
 // type: 'Unknown',
 // mac: 'CA8AF83DDC7C',
 // bleName: '',
@@ -152,8 +152,12 @@ app.post('/gateway', gwjsonParser, async function(req, res) {
         sample.rawData &&
         sample.rawData.includes("FF99040")) {
         console.log(sample);
-        let binary = hexStringToByte(sample.rawData.indexOf("FF99040") + 6);
+        let binary = hexStringToByte(sample.rawData.slice(sample.rawData.indexOf("FF99040") + 6));
         console.log(byteToHexString(binary));
+        // Skip non-broadcast types
+        if (binary[0] < 2 || binary[0] > 5) {
+          return;
+        }
         let data = ruuviParser.parse(binary);
         data.timestamp = new Date(sample.timestamp);
         data.rssi = sample.rssi;
